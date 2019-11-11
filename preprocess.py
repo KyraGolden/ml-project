@@ -71,11 +71,46 @@ def extract_mentions(coref_filename: str, sync_filename: str) -> List[Mention]:
 
 
 def create_coref_chains(mentions):
-    # TODO
-    pass
+    doc_id_hash = {}
+    curr_id = {}
+    curr_list = []
+    
+    #sort mentions into doc_id_hash by doc_id
+    for mention in mentions:
+        if mention[1] in doc_id_hash:
+            curr_list.append(mention)
+            doc_id_hash[mention[1]] += curr_list
+            curr_list = []
+        else:
+            curr_list.append(mention)
+            doc_id_hash[mention[1]] = curr_list
+            curr_list = []
+    #sort mentions in curr_id hash to sort for coref_id
+    for doc_id in doc_id_hash:
+        for mention in doc_id_hash[doc_id]:
+            if mention[0] in curr_id:
+                curr_list.append(mention)
+                curr_id[mention[0]] += curr_list
+                curr_list = []
+            else:
+                curr_list.append(mention)
+                curr_id[mention[0]] = curr_list
+                curr_list = []
+        #create a list of list of mentions and set them as value for doc_id in doc_îd_hash
+        for coref_id in curr_id:
+            mention = curr_id[coref_id]
+            curr_list.append(mention)
+        doc_id_hash[doc_id] = curr_list
+        #go to next doc_id with empty curr list and hash
+        curr_list = []
+        curr_id = {}
+
+    return doc_id_hash
 
 
 if __name__ == '__main__':
     mentions = extract_mentions('data/train.tueba.coref.txt', 'data/train.tueba.sync.txt')
     print(mentions[:10])
     coref_chains = create_coref_chains(mentions)
+    for x in list(coref_chains)[:10]:
+        print ("key {}, value {} ".format(x,  coref_chains[x]))
