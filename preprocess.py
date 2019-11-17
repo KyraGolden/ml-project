@@ -131,7 +131,7 @@ def create_coref_chains(mentions: List[Mention]) -> Dict[str, List[List[Mention]
 
 def extract_feature_vector(mention1: Mention, mention2: Mention) -> tuple:
     """Extract features for a single Mention pair."""
-    #get information from token (pos)
+    #get information from token
     Pos1 = mention1[5][5]  
     gramFct1 = mention1[5][10] 
     Pos2 = mention2[5][5]
@@ -159,17 +159,21 @@ def extract_features_labels(mentions: List[Mention],
     """Create parallel lists of features and labels (X and y)."""
     features = []  # = X
     labels = []    # = y
-    for doc in doc_coref_chains:
+        for doc in doc_coref_chains:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
         coref_chains = doc_coref_chains[doc]
         for coref_chain in coref_chains:
             for mention1, mention2 in zip(coref_chain, coref_chain[1:]):
                 feature_vector = extract_feature_vector(mention1, mention2)
                 features.append(feature_vector)
                 labels.append(1)  # 1 = "coreference", 0 = "no coreference"
-                
-    for values in mention1<features.index() and mention1>labels.index()
-                
                 # TODO: compare mention1 to all mentions between mention1 and mention2
+                for mention3 in mentions:
+                    if mention3.doc_id == mention2.doc_id == mention1.doc_id #doc id must be same
+                    if mention1.phrase_start<mention3.phrase_start<mention2.phrase_start: #mention3 must be betw
+                        if mention1.sent_id<=mention3.sent_id<=mention2.sent_id: #mention id can between sentences. 
+                            features.append(extract_feature_vector(mention1,mention3)
+                                            labels.append(0))
+                       
                 # → add features and label=0 (lines 8ff on slide 4)
 
     return features, labels
@@ -180,3 +184,4 @@ if __name__ == '__main__':
     doc_coref_chains = create_coref_chains(mentions)
     features, labels = extract_features_labels(mentions, doc_coref_chains)
     # TODO output features and labels as CSV
+    
