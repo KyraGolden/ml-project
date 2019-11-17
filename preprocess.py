@@ -3,6 +3,7 @@ import re
 from typing import Dict, Iterator, List, TextIO, Tuple
 
 
+
 Token = namedtuple('Token', (
     'doc_id',
     'sent_id',
@@ -104,7 +105,7 @@ def create_coref_chains(mentions: List[Mention]) -> Dict[str, List[List[Mention]
             curr_list = []
 
     # sort mentions in curr_id hash to sort for coref_id
-    for doc_id in doc_id_hash:
+    for doc_id in doc_id_hash: 
         for mention in doc_id_hash[doc_id]:
             if mention.coref_id in curr_id:
                 curr_list.append(mention)
@@ -125,13 +126,31 @@ def create_coref_chains(mentions: List[Mention]) -> Dict[str, List[List[Mention]
         curr_list = []
         curr_id = {}
 
-    return doc_id_hash
+    return doc_id_hash 
 
 
 def extract_feature_vector(mention1: Mention, mention2: Mention) -> tuple:
     """Extract features for a single Mention pair."""
-    # TODO
-    return ()
+    #get information from token (pos)
+    Pos1 = mention1[5][5]  
+    gramFct1 = mention1[5][10] 
+    Pos2 = mention2[5][5]
+    gramFct2 = mention2[5][10]
+    if mention1[5][2] == mention2[5][2]:
+        samehead = 2
+    else:
+        samehead = 0
+    samehead 
+    if Pos1 == Pos2:
+        samePos= 2
+    else:
+          samePos = 0
+    if gramFct1 == gramFcr2:
+        samegramFct = 2
+    else: 
+        samegramFct = 0
+    feature_vector = (PoS1, gramFct1, Pos2, gramFct2, samehead, samePoS, samegramFct)
+    return feature_vector
 
 
 def extract_features_labels(mentions: List[Mention],
@@ -145,10 +164,11 @@ def extract_features_labels(mentions: List[Mention],
         for coref_chain in coref_chains:
             for mention1, mention2 in zip(coref_chain, coref_chain[1:]):
                 feature_vector = extract_feature_vector(mention1, mention2)
-
                 features.append(feature_vector)
                 labels.append(1)  # 1 = "coreference", 0 = "no coreference"
-
+                
+    for values in mention1<features.index() and mention1>labels.index()
+                
                 # TODO: compare mention1 to all mentions between mention1 and mention2
                 # → add features and label=0 (lines 8ff on slide 4)
 
