@@ -2,8 +2,6 @@ from collections import namedtuple, defaultdict
 import re
 from typing import Dict, Iterator, List, TextIO, Tuple
 
-
-
 Token = namedtuple('Token', (
     'doc_id',
     'sent_id',
@@ -73,7 +71,7 @@ def extract_mentions(coref_filename: str, sync_filename: str) -> List[Mention]:
                         # coreference phrase ends: remove start id from stack, store mention
                         phrase_start = phrase_stacks[coref_id].pop()
                         phrase_end = token.tok_id
-                        phrase_tokens = sentence[int(phrase_start) - 1 : int(phrase_end)]
+                        phrase_tokens = sentence[int(phrase_start) - 1: int(phrase_end)]
                         mentions.append(Mention(coref_id,
                                                 token.doc_id,
                                                 token.sent_id,
@@ -82,7 +80,8 @@ def extract_mentions(coref_filename: str, sync_filename: str) -> List[Mention]:
                                                 phrase_tokens))
 
             if any(len(stack) > 0 for stack in phrase_stacks.values()):
-                raise RuntimeError('something\'s wrong with sentence {} in document {}'.format(sentence[0].sent_id, sentence[0].doc_id))
+                raise RuntimeError('something\'s wrong with sentence {} in document {}'.format(sentence[0].sent_id,
+                                                                                               sentence[0].doc_id))
 
     return mentions
 
@@ -105,7 +104,7 @@ def create_coref_chains(mentions: List[Mention]) -> Dict[str, List[List[Mention]
             curr_list = []
 
     # sort mentions in curr_id hash to sort for coref_id
-    for doc_id in doc_id_hash: 
+    for doc_id in doc_id_hash:
         for mention in doc_id_hash[doc_id]:
             if mention.coref_id in curr_id:
                 curr_list.append(mention)
@@ -126,30 +125,29 @@ def create_coref_chains(mentions: List[Mention]) -> Dict[str, List[List[Mention]
         curr_list = []
         curr_id = {}
 
-    return doc_id_hash 
+    return doc_id_hash
 
 
 def extract_feature_vector(mention1: Mention, mention2: Mention) -> tuple:
     """Extract features for a single Mention pair."""
-    #get information from token
-    Pos1 = mention1[5][5]  
-    gramFct1 = mention1[5][10] 
+    # get information from token
+    Pos1 = mention1[5][5]
+    gramFct1 = mention1[5][10]
     Pos2 = mention2[5][5]
     gramFct2 = mention2[5][10]
     if mention1[5][2] == mention2[5][2]:
         samehead = 2
     else:
         samehead = 0
-    samehead 
     if Pos1 == Pos2:
-        samePos= 2
+        samePos = 2
     else:
-          samePos = 0
-    if gramFct1 == gramFcr2:
+        samePos = 0
+    if gramFct1 == gramFct2:
         samegramFct = 2
-    else: 
+    else:
         samegramFct = 0
-    feature_vector = (PoS1, gramFct1, Pos2, gramFct2, samehead, samePoS, samegramFct)
+    feature_vector = (Pos1, gramFct1, Pos2, gramFct2, samehead, samePos, samegramFct)
     return feature_vector
 
 
@@ -158,30 +156,30 @@ def extract_features_labels(mentions: List[Mention],
                             ) -> Tuple[List[tuple], List[int]]:
     """Create parallel lists of features and labels (X and y)."""
     features = []  # = X
-    labels = []    # = y
-        for doc in doc_coref_chains:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+    labels = []  # = y
+    for doc in doc_coref_chains:
         coref_chains = doc_coref_chains[doc]
-        for coref_chain in coref_chains:
-            for mention1, mention2 in zip(coref_chain, coref_chain[1:]):
-                feature_vector = extract_feature_vector(mention1, mention2)
-                features.append(feature_vector)
-                labels.append(1)  # 1 = "coreference", 0 = "no coreference"
-                # TODO: compare mention1 to all mentions between mention1 and mention2
-                for mention3 in mentions:
-                    if mention3.doc_id == mention2.doc_id == mention1.doc_id: #doc id must be same
-                    if mention1.phrase_start<mention3.phrase_start<mention2.phrase_start: #mention3 must be betw
-                        if mention1.sent_id<=mention3.sent_id<=mention2.sent_id: #mention id can between sentences. 
-                            features.append(extract_feature_vector(mention1,mention3)
-                                            labels.append(0))
-                       
-                # → add features and label=0 (lines 8ff on slide 4)
+    for coref_chain in coref_chains:
+        for mention1, mention2 in zip(coref_chain, coref_chain[1:]):
+            feature_vector = extract_feature_vector(mention1, mention2)
+            features.append(feature_vector)
+            labels.append(1)  # 1 = "coreference", 0 = "no coreference"
+            # TODO: compare mention1 to all mentions between mention1 and mention2
+            for mention3 in mentions:
+                if mention3.doc_id == mention2.doc_id == mention1.doc_id: # doc id must be same
+                    if mention1.phrase_start < mention3.phrase_start < mention2.phrase_start:  # mention3 must be betw
+                        if mention1.sent_id <= mention3.sent_id <= mention2.sent_id:  # mention id can between sentences.
+                            features.append(extract_feature_vector(mention1, mention3),labels.append(0))
+            else:
+                    labels.append(1)
 
-    return features, labels
+                    # → add features and label=0 (lines 8ff on slide 4)
 
+        return features, labels
 
-if __name__ == '__main__':
-    mentions = extract_mentions('data/train.tueba.coref.txt', 'data/train.tueba.sync.txt')
-    doc_coref_chains = create_coref_chains(mentions)
-    features, labels = extract_features_labels(mentions, doc_coref_chains)
-    # TODO output features and labels as CSV
+    if __name__ == '__main__':
+        mentions = extract_mentions('data/train.tueba.coref.txt', 'data/train.tueba.sync.txt')
+        doc_coref_chains = create_coref_chains(mentions)
+        features, labels = extract_features_labels(mentions, doc_coref_chains)
+        # TODO output features and labels as CSV
     
