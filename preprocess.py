@@ -168,7 +168,7 @@ def extract_features_labels(mentions: List[Mention],
                 labels.append(1)  # 1 = "coreference", 0 = "no coreference"
                 # TODO: compare mention1 to all mentions between mention1 and mention2
                 for mention3 in mentions:
-                    if mention3.doc_id == mention2.doc_id == mention1.doc_id #doc id must be same
+                    if mention3.doc_id == mention2.doc_id == mention1.doc_id: #doc id must be same
                     if mention1.phrase_start<mention3.phrase_start<mention2.phrase_start: #mention3 must be betw
                         if mention1.sent_id<=mention3.sent_id<=mention2.sent_id: #mention id can between sentences. 
                             features.append(extract_feature_vector(mention1,mention3)
